@@ -63,13 +63,15 @@ export default function ProfilePage() {
           if (response?.success) {
             const userData = response.data.user
             const userProfile = response.data.profile
+            // console.log(userData)
+            // console.log(userProfile)
             
             setProfileData({
               firstName: userData?.firstName || "",
               lastName: userData?.lastName || "",
               email: userData?.email || "",
               phone: userProfile?.phone || "",
-              dateOfBirth: userProfile?.dateOfBirth || "",
+              dateOfBirth: userProfile?.dateOfBirth ? new Date(userProfile.dateOfBirth).toISOString().split('T')[0] : "",
               nationality: userProfile?.nationality || "",
               address: userProfile?.address || "",
               bio: userProfile?.bio || ""
@@ -86,6 +88,7 @@ export default function ProfilePage() {
     fetchUserData()
   }, [])
 
+  console.log(profileData);
 
 
   const handleSave = async () => {
@@ -212,7 +215,7 @@ export default function ProfilePage() {
                           {profileData.dateOfBirth && (
                             <div className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
-                              Born {new Date(profileData.dateOfBirth).toLocaleDateString()}
+                              Born {new Date(profileData.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                             </div>
                           )}
                           <div className="flex items-center gap-1">

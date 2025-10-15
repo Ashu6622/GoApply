@@ -90,9 +90,16 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      // TODO: Implement profile save functionality
-      setOriginalData({ ...profileData })
-      setIsEditing(false)
+      const token = localStorage.getItem('token')
+      if (token) {
+        const response = await api.updateProfile(profileData, token)
+        if (response.success) {
+          setOriginalData({ ...profileData })
+          setIsEditing(false)
+        } else {
+          console.error('Failed to update profile:', response.message)
+        }
+      }
     } catch (error) {
       console.error("Error saving profile:", error)
     }

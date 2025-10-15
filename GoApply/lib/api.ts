@@ -153,5 +153,17 @@ export const api = {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     return response.json()
+  },
+
+  updateProfile: async (profileData: any, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(profileData)
+    })
+    return response.json()
   }
 }

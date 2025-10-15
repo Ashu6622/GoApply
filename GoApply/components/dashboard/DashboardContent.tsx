@@ -25,13 +25,33 @@ import {
 } from "lucide-react"
 
 export default function DashboardContent() {
-  const { user, applications: userApplications, mentorships, isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [applications, setApplications] = useState([])
+
+ useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (token && user && isAuthenticated) {
+          const response = await api.getApplications(token)
+          if (response?.success) {
+            setApplications(response.applications || [])
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load applications:', error)
+        alert('Error in Fetching the Data');
+      }
+    }
+
+    fetchApplications()
+  }, [user, isAuthenticated])
 
   const stats = useMemo(() => {
-    const submittedApps = userApplications?.filter(app => app?.status === 'Submitted' || app?.status === 'Under Review' || app?.status === 'Accepted') || []
-    const uniqueUniversities = new Set(userApplications?.map(app => app?.universityName) || [])
+    const submittedApps = applications?.filter(app => app?.status === 'Submitted' || app?.status === 'Under Review' || app?.status === 'Accepted') || []
+    const uniqueUniversities = new Set(applications?.map(app => app?.universityName) || [])
     
     return [
       {
@@ -50,7 +70,7 @@ export default function DashboardContent() {
       },
       {
         title: "Active Mentorships",
-        value: (mentorships?.length || 0).toString(),
+        value: 0,
         change: "All active",
         icon: Users,
         color: "text-green-600"
@@ -63,7 +83,7 @@ export default function DashboardContent() {
         color: "text-orange-600"
       }
     ]
-  }, [userApplications, mentorships, user])
+  }, [applications, user])
 
   
   const getUserDisplayName = () => {
@@ -156,8 +176,8 @@ export default function DashboardContent() {
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
-              ) : userApplications?.slice(0, 3)?.length > 0 ? (
-                userApplications?.slice(0, 3)?.map((app) => (
+              ) : applications?.slice(0, 3)?.length > 0 ? (
+               applications?.slice(0, 3)?.map((app) => (
                   <div key={app?._id} className="p-4 rounded-lg border border-border/50 bg-background/50">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">

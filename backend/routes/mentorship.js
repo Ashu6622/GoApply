@@ -157,18 +157,11 @@ router.get('/mentors', async (req, res) => {
   try {
     const mentors = await Mentor.find();
     
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      data: mentors
-    });
+    res.json({success: true,statusCode: 200,data: mentors});
+    
   } 
   catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: false,statusCode: 500,message: 'Server error'});
   }
 });
 

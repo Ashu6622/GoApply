@@ -10,7 +10,7 @@ router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.json({ success: false, message: 'User not found' });
     }
 
     // Get user profile if exists
@@ -32,7 +32,7 @@ router.get('/me', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.json({ success: false, message: 'Server error' });
   }
 });
 

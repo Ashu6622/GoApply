@@ -17,11 +17,7 @@ router.get('/applications', auth, async (req, res) => {
     });
   } 
   catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: false,statusCode: 500, message: 'Server error'});
   }
 });
 
@@ -34,18 +30,10 @@ router.post('/applications', auth, async (req, res) => {
     });
     await application.save();
 
-    res.status(201).json({
-      success: true,
-      statusCode: 201,
-      application
-    });
+    res.json({success: true, statusCode: 201,application});
   } 
   catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({ success: false,statusCode: 500,message: 'Server error' });
   }
 });
 
@@ -58,25 +46,14 @@ router.get('/applications/:id', auth, async (req, res) => {
     });
 
     if (!application) {
-      return res.status(404).json({
-        success: false,
-        statusCode: 404,
-        message: 'Application not found'
+      return res.json({success: false,statusCode: 404, message: 'Application not found'
       });
     }
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      application
-    });
+    res.json({success: true,statusCode: 200,application});
   } 
   catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: false,statusCode: 500,message: 'Server error'});
   }
 });
 
@@ -97,17 +74,9 @@ router.put('/applications/:id', auth, async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      application
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: true,statusCode: 200,application});
+  }
+   catch (error) {res.json({success: false,statusCode: 500,message: 'Server error'});
   }
 });
 
@@ -127,18 +96,10 @@ router.delete('/applications/:id', auth, async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: 'Application deleted successfully'
-    });
+    res.json({success: true,statusCode: 200,message: 'Application deleted successfully'});
   } 
   catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: false,statusCode: 500,message: 'Server error'});
   }
 });
 

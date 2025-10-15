@@ -50,16 +50,12 @@ router.get('/universities', async (req, res) => {
       universities = await University.find();
     }
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      data: universities
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
+    res.json({ success: true,statusCode: 200,data: universities});
+  } 
+  catch (error) {
+
+    res.json({success: false,statusCode: 500,message: 'Server error'
+
     });
   }
 });
@@ -77,7 +73,8 @@ router.get('/programs', async (req, res) => {
           { degreeType: { $regex: q, $options: 'i' } }
         ]
       }).populate('universityId', 'name country ranking');
-    } else {
+    } 
+    else {
       programs = await Program.find().populate('universityId', 'name country ranking');
     }
 
@@ -92,17 +89,10 @@ router.get('/programs', async (req, res) => {
       ranking: program.universityId.ranking
     }));
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      data: transformedPrograms
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: 'Server error'
-    });
+    res.json({success: true,statusCode: 200,data: transformedPrograms});
+  } 
+  catch (error) {
+    res.json({success: false,statusCode: 500, message: 'Server error'});
   }
 });
 

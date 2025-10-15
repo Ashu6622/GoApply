@@ -10,20 +10,16 @@ router.get('/questionnaire', auth, async (req, res) => {
   try {
     const existingProfile = await UserProfile.findOne({ userId: req.user._id });
 
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      currentStep: req.user.registrationStep || 1,
-      existingData: existingProfile || {}
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      statusCode: 500,
-      message: 'Server error' 
-    });
+    res.json({success: true,statusCode: 200,currentStep: req.user.registrationStep || 1,existingData:existingProfile || {}});
+  } 
+  catch (error) {
+
+    res.json({ success: false,statusCode: 500, message: 'Server error' });
+
   }
 });
+
+
 
 // POST /api/profile/questionnaire
 router.post('/questionnaire', auth, async (req, res) => {
@@ -39,18 +35,11 @@ router.post('/questionnaire', auth, async (req, res) => {
       registrationStep: 8
     });
 
-    res.status(200).json({ 
-      success: true,
-      statusCode: 200,
-      profile,
-      message: 'Profile updated successfully' 
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      statusCode: 500,
-      message: 'Server error' 
-    });
+    res.json({ success: true,statusCode: 200,profile,message: 'Profile updated successfully' });
+
+  }
+   catch (error) {
+    res.json({  success: false, statusCode: 500, message: 'Server error' });
   }
 });
 

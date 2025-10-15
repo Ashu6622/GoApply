@@ -1,0 +1,365 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Slider } from "@/components/ui/slider"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Search, Filter, MapPin, Star, GraduationCap, Clock, DollarSign } from "lucide-react"
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar"
+import DashboardHeader from "@/components/dashboard/DashboardHeader"
+import ProtectedRoute from "@/components/auth/ProtectedRoute"
+import { api } from "@/lib/api"
+
+
+
+export default function SearchPage() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedState, setSelectedState] = useState("")
+  const [selectedField, setSelectedField] = useState("")
+  const [selectedLevel, setSelectedLevel] = useState("")
+  const [tuitionRange, setTuitionRange] = useState([30000, 60000])
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
+  const [minRating, setMinRating] = useState(4.0)
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [programs, setPrograms] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setPrograms([])
+      return
+    }
+    
+    setLoading(true)
+    try {
+      const response = await api.searchPrograms(searchQuery);
+      // console.log('API Response:', response);
+      // console.log('Programs data:', response.data);
+      if (response.success && response.data) {
+        setPrograms(response.data)
+        // console.log('Programs set:', response.data);
+      } else {
+        setPrograms([])
+      }
+    } catch (error) {
+      // console.error('Search failed:', error)
+      alert('Error in Searching')
+      setPrograms([])
+      return;
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // For now, show all programs from API without additional filtering
+  const filteredPrograms = programs || []
+  
+  // console.log('Filtered programs:', filteredPrograms);
+
+  const handleFeatureToggle = (feature: string) => {
+    setSelectedFeatures(prev => 
+      prev.includes(feature) 
+        ? prev.filter(f => f !== feature)
+        : [...prev, feature]
+    )
+  }
+
+  return (
+    <ProtectedRoute>
+      <div className="flex h-screen">
+        <DashboardSidebar 
+          collapsed={sidebarCollapsed} 
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader />
+          <main className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
+              {/* Header */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <h1 className="text-3xl font-bold text-foreground">Find Programs</h1>
+                <p className="text-muted-foreground mt-1">Discover programs that match your interests and goals</p>
+              </motion.div>
+
+              {/* Search and Filters */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="bg-card/50 backdrop-blur border-border/50 hover:bg-card/60 transition-all duration-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="h-5 w-5" />
+                      Search & Filter Programs
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="search">Search Programs</Label>
+                        <Input
+                          id="search"
+                          placeholder="Computer Science, Engineering..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="bg-background/50 backdrop-blur border-border/50"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>State/Territory</Label>
+                        <Select value={selectedState} onValueChange={setSelectedState}>
+                          <SelectTrigger className="bg-background/50 backdrop-blur border-border/50">
+                            <SelectValue placeholder="Select state" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="victoria">Victoria</SelectItem>
+                            <SelectItem value="new-south-wales">New South Wales</SelectItem>
+                            <SelectItem value="queensland">Queensland</SelectItem>
+                            <SelectItem value="western-australia">Western Australia</SelectItem>
+                            <SelectItem value="south-australia">South Australia</SelectItem>
+                            <SelectItem value="tasmania">Tasmania</SelectItem>
+                            <SelectItem value="act">ACT</SelectItem>
+                            <SelectItem value="northern-territory">Northern Territory</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Field of Study</Label>
+                        <Select value={selectedField} onValueChange={setSelectedField}>
+                          <SelectTrigger className="bg-background/50 backdrop-blur border-border/50">
+                            <SelectValue placeholder="Select field" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="computer-science">Computer Science</SelectItem>
+                            <SelectItem value="data-science">Data Science</SelectItem>
+                            <SelectItem value="engineering">Engineering</SelectItem>
+                            <SelectItem value="business">Business</SelectItem>
+                            <SelectItem value="medicine">Medicine</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Study Level</Label>
+                        <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                          <SelectTrigger className="bg-background/50 backdrop-blur border-border/50">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="masters">Master's</SelectItem>
+                            <SelectItem value="bachelors">Bachelor's</SelectItem>
+                            <SelectItem value="phd">PhD</SelectItem>
+                            <SelectItem value="diploma">Diploma</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleSearch}
+                        disabled={loading}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        <Search className="w-4 h-4 mr-2" />
+                        {loading ? 'Searching...' : 'Search Programs'}
+
+                      </Button>
+                      <Dialog open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="bg-background/50 backdrop-blur border-border/50">
+                            <Filter className="w-4 h-4 mr-2" />
+                            Advanced Filters
+                            {(selectedFeatures.length > 0 || minRating > 4.0 || tuitionRange[0] !== 30000 || tuitionRange[1] !== 60000) && (
+                              <Badge variant="secondary" className="ml-2 h-4 w-4 p-0 flex items-center justify-center text-xs">
+                                {selectedFeatures.length + (minRating > 4.0 ? 1 : 0) + (tuitionRange[0] !== 30000 || tuitionRange[1] !== 60000 ? 1 : 0)}
+                              </Badge>
+                            )}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Advanced Filters</DialogTitle>
+                            <DialogDescription>
+                              Refine your search with additional criteria
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-6">
+                            {/* Tuition Range */}
+                            <div className="space-y-3">
+                              <Label>Annual Tuition Range (AUD)</Label>
+                              <div className="px-2">
+                                <Slider
+                                  value={tuitionRange}
+                                  onValueChange={setTuitionRange}
+                                  max={80000}
+                                  min={20000}
+                                  step={5000}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="flex justify-between text-sm text-muted-foreground">
+                                <span>${tuitionRange[0].toLocaleString()}</span>
+                                <span>${tuitionRange[1].toLocaleString()}</span>
+                              </div>
+                            </div>
+
+                            {/* Minimum Rating */}
+                            <div className="space-y-3">
+                              <Label>Minimum Rating</Label>
+                              <div className="px-2">
+                                <Slider
+                                  value={[minRating]}
+                                  onValueChange={(value) => setMinRating(value[0])}
+                                  max={5.0}
+                                  min={3.0}
+                                  step={0.1}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="flex justify-between text-sm text-muted-foreground">
+                                <span>3.0</span>
+                                <span className="font-medium">{minRating.toFixed(1)} ⭐</span>
+                                <span>5.0</span>
+                              </div>
+                            </div>
+
+                            {/* Program Features */}
+                            <div className="space-y-3">
+                              <Label>Program Features</Label>
+                              <div className="grid grid-cols-1 gap-3">
+                                {["Industry-focused", "Research-based", "Internship", "Part-time work allowed", "AI/ML", "Scholarships available"].map((feature) => (
+                                  <div key={feature} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={feature}
+                                      checked={selectedFeatures.includes(feature)}
+                                      onCheckedChange={() => handleFeatureToggle(feature)}
+                                    />
+                                    <Label htmlFor={feature} className="text-sm font-normal">
+                                      {feature}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Clear Filters */}
+                            <div className="flex gap-2 pt-4">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setTuitionRange([30000, 60000])
+                                  setMinRating(4.0)
+                                  setSelectedFeatures([])
+                                }}
+                                className="flex-1"
+                              >
+                                Clear All
+                              </Button>
+                              <Button 
+                                onClick={() => setShowAdvancedFilters(false)}
+                                className="flex-1"
+                              >
+                                Apply Filters
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Results */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-foreground">Search Results</h2>
+                  <p className="text-sm text-muted-foreground">{filteredPrograms.length} programs found</p>
+                </div>
+
+                <div className="grid gap-6">
+                  {filteredPrograms.map((program, index) => (
+                    <motion.div
+                      key={program.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.1 * index }}
+                    >
+                      <Card className="bg-card/50 backdrop-blur border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 hover:border-primary/20">
+                        <CardContent className="p-6">
+                          <div className="flex flex-col lg:flex-row gap-6">
+                            {/* University Logo */}
+                            <div className="flex-shrink-0">
+                              <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <GraduationCap className="w-8 h-8 text-primary" />
+                              </div>
+                            </div>
+
+                            {/* Program Details */}
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-foreground">{program.name}</h3>
+                                  <p className="text-muted-foreground">{program.university}</p>
+                                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                    {program.degreeType && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {program.degreeType}
+                                      </Badge>
+                                    )}
+                                    {program.duration && (
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {program.duration}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Action buttons */}
+                              <div className="flex gap-2 pt-2">
+                                <Button variant="outline" size="sm">
+                                  Learn More
+                                </Button>
+                                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                                  Apply Now
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+}
